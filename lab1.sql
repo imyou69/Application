@@ -85,3 +85,195 @@ select B.B_id,B.title,C.no_of_copies
 from Library_pgm L,Book B,Book_copies C where B.B_id=C.B_id and L.P_id=C.P_id ;
 
 select * from Book_available;
+
+
+LAB2 
+
+create table student (USN varchar (20) primary key, sname varchar (20), address varchar (20), phone int, gender varchar (20)) ;
+create table semsec(SSID varchar (20) primary key, sem int, sec char);
+CREATE TABLE class (
+    USN VARCHAR(20),
+    SSID VARCHAR(20),
+    PRIMARY KEY (USN, SSID),
+    FOREIGN KEY (USN) REFERENCES student (USN) ON DELETE CASCADE,
+    FOREIGN KEY (SSID) REFERENCES semsec (SSID) ON DELETE CASCADE
+);
+create table course2(subcode varchar(20) primary key, title varchar(20),sem int, credit int);
+create table iamarks(USN varchar(20), subcode  varchar(20), SSID  varchar(20) , primary key(USN,subcode,SSID),
+FOREIGN KEY (USN) REFERENCES student (USN) ON DELETE CASCADE,
+    FOREIGN KEY (SSID) REFERENCES semsec (SSID) ON DELETE CASCADE,
+ FOREIGN KEY (subcode) REFERENCES course (subcode) ON DELETE CASCADE,
+test1 int,test2 int, test3 int, finalIA float);
+
+
+
+
+insert into student values('1DS22IS049','ARJUN','BANGALORE',95379823498,'MALE');
+insert into student values('1DS22IS022','ADITYA','BANGALORE',7364876347,'MALE');
+insert into student values('1DS22IS017','ANEESH','MATTUR',8528798579834,'MALE');
+insert into student values('1DS22IS058','VARSHA','PUNE',3479283748934,'FEMALE');
+insert into student values('1DS22IS007','RUPA','MANGALORE',8348748587,'FEMALE');
+SELECT * FROM student;
+
+
+insert into semsec values('4A01',4,'A');
+insert into semsec values('4C02',4,'C');
+insert into semsec values('8A01',8,'A');
+insert into semsec values('8C03',8,'C');
+insert into semsec values('5A01',5,'A');
+SELECT * FROM semsec;
+
+
+insert into class values('1DS22IS049','8A01');
+insert into class values('1DS22IS022''8A01');
+insert into class values('1DS22IS017','4C02');
+insert into class values('1DS22IS058','4C02');
+insert into class values('1DS22IS007','5A01');
+SELECT * FROM class;
+
+
+insert into course2 values('1','DBMS',5,4);
+insert into course2 values('3','CHEMISTRY',8,4);
+insert into course2 values('4','CNCS',4,2);
+insert into course2 values('5','PP',5,3);
+SELECT * FROM course;
+drop table course;
+
+
+insert into iamarks values('1DS22IS049','1','8A01',19,18,20,19);
+insert into iamarks values('1DS22IS022','3','8A01',18,12,13,15.5);
+insert into iamarks values('1DS22IS017','4','4C02',2,4,3,3.5);
+insert into iamarks values('1DS22IS058',4,'4C02',14,16,18,17);
+insert into iamarks values('1DS22IS007',5,'5A01',18,16,17,17);
+select * from iamarks;
+
+select s1.* from student s1,semsec s2,class c where s1.USN=c.USN and c.SSID=s2.SSID and s2.sem=4 and s2.sec='C';
+
+
+select s.gender , ss.sem, ss.sec, count(gender) from student s,semsec ss, class c where s.USN=c.USN and c.SSID=ss.SSID group by s.gender,ss.sem,ss.sec;
+
+
+create view IAmarks_1 as select subcode,test1 from iamarks where USN='1DS22IS049';
+select * from IAmarks_1;
+
+
+UPDATE iamarks 
+SET finalIA = (
+    (GREATEST(test1, test2, test3) + ((test1 + test2 + test3) - GREATEST(test1, test2, test3) - LEAST(test1, test2, test3))) / 2
+);
+select * from iamarks;
+
+select ss.sec,s.*,(case when IA.finalIA between 17and 20 then 'OUTSTANDING' when IA.finalIA between 12 and 16 then 'AVERAGE' else 'WEAK' end) As cat from student s,semsec ss, iamarks IA,course sub where s.USN=IA.USN and ss.SSID=IA.SSID and sub.subcode=IA.subcode and sub.sem=8;
+
+
+LAB 3
+
+create table dept (dno int primary key, dname varchar (20),mgrSSN int,mgrstartdate date);
+CREATE TABLE employee (
+    SSN int primary key,
+    name varchar (20),
+    address varchar (20),
+    sex char,
+    salary float,
+    superSSN varchar (20),
+    dno int,
+    FOREIGN KEY (dno) REFERENCES dept(dno) ON DELETE CASCADE
+);
+create table dlocation( dno int primary key, dloc varchar (20), foreign key (dno) references dept(dno) on delete cascade);
+create table project (pno int primary key,pname varchar (20),ploc varchar (20),dno int, foreign key (dno) references dept(dno) on delete cascade);
+CREATE TABLE workson (SSN int,pno int, hours int, FOREIGN KEY (pno) REFERENCES project(pno) ON DELETE CASCADE,FOREIGN KEY (SSN) REFERENCES employee (SSN) ON DELETE CASCADE);
+
+
+-- Inserting values for departments
+INSERT INTO dept VALUES (1, 'Engineering', 123456789, '01-JAN-2023');
+INSERT INTO dept VALUES (2, 'Marketing', 234567890, '15-FEB-2023');
+INSERT INTO dept VALUES (3, 'Finance', 345678901,'20-MAR-2023');
+INSERT INTO dept VALUES (4, 'Human Resources', 456789012, '10-APR-2023');
+INSERT INTO dept VALUES (5, 'Research', 567890123,'05-MAY-2023');
+INSERT INTO dept VALUES (6, 'Finance', 345676801,'20-MAR-2023');
+INSERT INTO dept VALUES (7, 'Finance', 345678901,'20-MAR-2023');
+INSERT INTO dept VALUES (8, 'Finance', 345679901,'20-MAR-2023');
+INSERT INTO dept VALUES (9, 'Finance', 345676901,'20-MAR-2023');
+INSERT INTO dept VALUES (10, 'Finance', 345677901,'20-MAR-2023');
+truncate table dept;
+
+INSERT INTO employee VALUES (101, 'John Doe', '123 Main St', 'M', 600000.00, 60, 1);
+INSERT INTO employee VALUES (201,'Michael Johnson', '124 Main St', 'M', 700000.00, 61, 2);
+INSERT INTO employee VALUES (301,'Jessica White', '125 Main St', 'F', 800000.00, 62, 3);
+INSERT INTO employee VALUES (401, 'William Clark', '126 Main St', 'M', 100000.00, 63, 4);
+INSERT INTO employee VALUES (501, 'Olivia Hall', '127 Main St', 'F', 300000.00, 65, 5);
+INSERT INTO employee VALUES (601,'Amber', '125 Main St', 'F', 700000.00, 66, 6);
+INSERT INTO employee VALUES (701,'Skyler', '125 Main St', 'F', 900000.00, 67, 7);
+INSERT INTO employee VALUES (801,'Walter White', '125 Main St', 'F', 800000.00, 68, 8);
+INSERT INTO employee VALUES (901,'Butcher', '125 Main St', 'F', 610000.00, 69, 9);
+INSERT INTO employee VALUES (1001,'Homelander', '125 Main St', 'F', 710000.00, 70, 10);
+select * from employee
+
+-- Inserting values for department locations
+INSERT INTO dlocation VALUES (1, 'New York');
+INSERT INTO dlocation VALUES (2, 'Los Angeles');
+INSERT INTO dlocation VALUES (3, 'Chicago');
+INSERT INTO dlocation VALUES (4, 'Houston');
+INSERT INTO dlocation VALUES (5, 'San Francisco');
+
+-- Inserting values for projects
+INSERT INTO project VALUES (1, 'Project A', 'New York', 1);
+INSERT INTO project VALUES (2, 'Project B', 'Los Angeles', 2);
+INSERT INTO project VALUES (3, 'Project C', 'Chicago', 3);
+INSERT INTO project VALUES (4, 'Project D', 'Houston', 4);
+INSERT INTO project VALUES (5, 'Project E', 'San Francisco', 5);
+
+INSERT INTO workson values(101,1,10);
+INSERT INTO workson values(201,2,12);
+INSERT INTO workson values(301,3,15);
+INSERT INTO workson values(401,4,18);
+
+
+SELECT DISTINCT P.pno
+FROM project P, dept D, employee E
+WHERE P.dno = D.dno
+  AND E.name = 'John Doe'
+  AND P.dno = E.dno
+
+UNION
+
+SELECT DISTINCT P.pno
+FROM project P, workson W, employee E
+WHERE P.pno = W.pno
+  AND W.SSN = E.SSN
+  AND E.name = 'John Doe';
+
+
+select E.name,1.1*E.salary as hike_salary
+from project P,workson W,employee E
+where P.pno=W.pno and W.SSN=E.SSN and P.pname='Project C';
+
+
+SELECT 
+    SUM(E.salary) AS sum_sal,
+    MAX(E.salary) AS max_sal,
+    MIN(E.salary) AS min_sal,
+    AVG(E.salary) AS avg_sal
+FROM 
+    employee E, dept D
+WHERE 
+    E.dno = D.dno
+    AND D.dname = 'Finance';
+
+
+SELECT E.name
+FROM employee E
+WHERE NOT EXISTS (
+    (SELECT P.pno FROM project P WHERE P.dno = 5)
+    MINUS
+    (SELECT W.pno FROM workson W WHERE E.SSN = W.SSN)
+);
+
+SELECT dno, COUNT(*) AS no_of_emp 
+FROM employee 
+WHERE salary > 60000
+  AND dno IN (SELECT dno 
+              FROM employee 
+              GROUP BY dno 
+              HAVING COUNT(*) > 0)
+GROUP BY dno;
